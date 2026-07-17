@@ -33,7 +33,7 @@
 .sulit-home-brand{font-size:18px;font-weight:850;color:#237744;letter-spacing:-.02em;margin-bottom:10px}
 .sulit-home-greeting{font-size:25px!important}
 .sulit-home-header p{font-size:15px}
- .phase1-header,body header:has(.brand-header),body .phase3-header{padding:0!important;background:transparent!important;border:0!important;min-heibodyght:auto!important}
+ .phase1-header,body header:has(.brand-header),body .phase3-header{padding:0!important;background:transparent!important;border:0!important;min-height:auto!important}
 
 /* Account: remove empty/oversized profile hero */
 .account-page .account-profile-card{display:none!important}

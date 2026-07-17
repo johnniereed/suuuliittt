@@ -281,3 +281,40 @@ html body .brand-sheet button.brand-choice.selected *{
 html body .brand-sheet button.brand-choice.selected small{
   color:#6d776f!important;
 }
+
+
+/* FINAL HEADER RECOVERY: keep existing header markup visible on hosted builds */
+html body .phase1-header,
+html body header:has(.brand-header),
+html body .phase3-header{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+  position:relative!important;
+  transform:none!important;
+  background:#fff!important;
+  border-bottom:1px solid #e4ece5!important;
+}
+html body .phase1-titlebar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  padding:15px 20px 12px!important;
+}
+html body .phase1-wordmark,
+html body .phase1-titlebar p,
+html body header .brand-header,
+html body .phase3-header h1,
+html body .phase3-header p{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+html body header .brand-header{
+  display:flex!important;
+}
