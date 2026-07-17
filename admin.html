@@ -65,6 +65,7 @@
  <button class="admin-tab" data-tab="tasks" onclick="openAdminTab('tasks');renderLaunchAdmin()">Today’s Tasks</button>
  <button class="admin-tab" data-tab="demand" onclick="openAdminTab('demand');renderLaunchAdmin()">Demand Queue</button>
  <button class="admin-tab active" data-tab="products" onclick="openAdminTab('products')">📦 Products</button>
+ <button class="admin-tab" data-tab="price-updater" onclick="openAdminTab('price-updater');renderStorePriceUpdater()">🛒 Store Price Updater</button>
  <button class="admin-tab" data-tab="prices" onclick="openAdminTab('prices')">💲 Prices</button>
  <button class="admin-tab" data-tab="aliases" onclick="openAdminTab('aliases')">🏷️ Aliases</button>
  <button class="admin-tab" data-tab="alias-review" onclick="openAdminTab('alias-review');refreshAliasCandidates()">🔎 New receipt names</button>
@@ -89,6 +90,47 @@
   <div class="admin-actions"><button onclick="saveAdminProduct()">Save product</button><button class="secondary" onclick="resetProductForm()">Clear form</button></div>
  </div>
  <div class="card"><div class="admin-section-title"><h2>Product table</h2><input id="productAdminSearch" style="max-width:260px" placeholder="Search products..."></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Product</th><th>Brand</th><th>Category</th><th>Unit</th><th>Prices</th><th>Actions</th></tr></thead><tbody id="productAdminRows"></tbody></table></div></div>
+</section>
+
+<section id="panel-price-updater" class="admin-panel">
+ <div class="card store-price-updater-card">
+  <div class="admin-section-title store-price-updater-heading">
+   <div>
+    <span class="eyebrow">FAST MANUAL UPDATES</span>
+    <h2>Store Price Updater</h2>
+    <div class="muted">Choose a store, enter only the prices that changed, then save everything at once.</div>
+   </div>
+   <span class="admin-count" id="storeUpdaterProgress">0 changed</span>
+  </div>
+
+  <div class="store-updater-toolbar">
+   <div><label>Store</label><select id="storeUpdaterStore" onchange="renderStorePriceUpdater()"></select></div>
+   <div><label>Search products</label><input id="storeUpdaterSearch" placeholder="Search name, brand or size..."></div>
+   <div><label>Category</label><select id="storeUpdaterCategory" onchange="renderStorePriceUpdater()"><option value="">All categories</option></select></div>
+   <label class="store-updater-toggle"><input id="storeUpdaterOutdated" type="checkbox" onchange="renderStorePriceUpdater()"><span>Only outdated prices</span></label>
+  </div>
+
+  <div class="store-updater-summary">
+   <div><strong id="storeUpdaterStoreName">Store</strong><span id="storeUpdaterLastChecked">No prices checked yet</span></div>
+   <div><strong id="storeUpdaterVisibleCount">0</strong><span>products shown</span></div>
+  </div>
+
+  <div class="admin-table-wrap store-updater-table-wrap">
+   <table class="admin-table store-updater-table">
+    <thead><tr><th>Product</th><th>Current price</th><th>Last checked</th><th>New price</th></tr></thead>
+    <tbody id="storeUpdaterRows"></tbody>
+   </table>
+  </div>
+
+  <div class="store-updater-footer">
+   <div class="muted">Blank fields stay unchanged. Prices are dated today when saved.</div>
+   <div class="admin-actions store-updater-actions">
+    <button class="secondary" type="button" onclick="clearStorePriceUpdaterInputs()">Clear entries</button>
+    <button class="secondary" type="button" onclick="goToNextPriceUpdaterStore()">Next store</button>
+    <button id="saveStorePriceUpdatesButton" type="button" onclick="saveStorePriceUpdates()">Save all updates</button>
+   </div>
+  </div>
+ </div>
 </section>
 
 <section id="panel-prices" class="admin-panel">

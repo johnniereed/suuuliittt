@@ -89,49 +89,35 @@ function renderProducts(searchText) {
   }).join("") : `<div class="launch-request-card"><div class="not-found-icon">⌕</div><h3>We couldn’t find “${String(searchText).replace(/[<>]/g,'')}” yet</h3><p>Add it to Sulit with one tap. We’ll notify you when it becomes available.</p><button type="button" onclick="submitProductRequest()">Add “${String(searchText).replace(/[<>]/g,'')}” to Sulit</button></div>`;
 }
 
-function ensureHomeBrandSheet(){
-  let sheet=document.getElementById('homeBrandSheet');
-  if(sheet)return sheet;
-  sheet=document.createElement('div');
-  sheet.id='homeBrandSheet';
-  sheet.className='brand-sheet';
-  sheet.innerHTML='<div class="brand-sheet-card" role="dialog" aria-modal="true"><div class="brand-sheet-handle"></div><div id="homeBrandSheetContent"></div></div>';
-  sheet.addEventListener('click',event=>{if(event.target===sheet)closeHomeBrandSheet()});
-  document.body.appendChild(sheet);
-  return sheet;
-}
-function closeHomeBrandSheet(){const sheet=document.getElementById('homeBrandSheet');if(sheet)sheet.classList.remove('show')}
-
 function selectHomeSearchResult(encodedName, encodedUnit = "") {
   const name = decodeURIComponent(encodedName);
   const unit = decodeURIComponent(encodedUnit || "");
-  const variants = variantsForSelection(name, unit).slice().sort((a,b)=>(lowestPrice(a.id)?.price??Infinity)-(lowestPrice(b.id)?.price??Infinity));
-  if(!variants.length)return;
-  const current=listItemForSelection(name,unit);
-  pendingHomeSelection={name,unit,productId:Number(current?.productId||variants[0].id),quantity:Number(current?.quantity||1)};
-  const sheet=ensureHomeBrandSheet();
-  const content=document.getElementById('homeBrandSheetContent');
-  content.innerHTML=`<div class="brand-sheet-head"><div><h2>Choose brand</h2><div class="muted">${name} · ${unit}</div></div><button class="brand-sheet-close" type="button" onclick="closeHomeBrandSheet()">×</button></div>
-  <p class="brand-sheet-intro">We’ll show the cheapest option first.</p>
-  <div>${variants.map(v=>{const p=lowestPrice(v.id),store=p?storeById(p.storeId):null;return `<button type="button" class="brand-choice ${Number(v.id)===pendingHomeSelection.productId?'selected':''}" onclick="chooseHomeBrand(${v.id},this)"><span class="brand-choice-main"><span class="brand-choice-logo">${productIcon(v)}</span><span><strong>${v.brand||'No Brand'}</strong><small>${store?store.name:'No store price'}</small></span></span><span class="brand-choice-price"><strong>${p?money(p.price):'—'}</strong><span class="brand-radio"></span></span></button>`}).join('')}</div>
-  <div class="brand-sheet-quantity"><span>Quantity</span><div class="quantity-control"><button type="button" onclick="changeHomeSheetQuantity(-1)">−</button><b id="homeSheetQuantity">${pendingHomeSelection.quantity}</b><button type="button" onclick="changeHomeSheetQuantity(1)">+</button></div></div>
-  <button class="brand-sheet-add" type="button" onclick="confirmHomeSelection()">Add to list</button>`;
-  requestAnimationFrame(()=>sheet.classList.add('show'));
+  const product = cheapestVariant(name, unit);
+  if (!product) return;
+
+  const list = getList();
+  const variantIds = new Set(variantsForSelection(name, unit).map(item => Number(item.id)));
+  const existingIndex = list.findIndex(item => variantIds.has(Number(item.productId)));
+
+  if (existingIndex >= 0) {
+    list[existingIndex] = {
+      productId: Number(product.id),
+      quantity: Math.max(1, Number(list[existingIndex].quantity || 1) + 1)
+    };
+  } else {
+    list.push({productId: Number(product.id), quantity: 1});
+  }
+
+  saveList(list);
+  localStorage.removeItem('selectedPlan');
+  const search = document.getElementById('search');
+  if (search) search.value = '';
+  const results = document.getElementById('results');
+  if (results) results.innerHTML = '';
+  updateItemCount();
+  showAddedToast(name, unit);
 }
-function chooseHomeBrand(productId,button){pendingHomeSelection.productId=Number(productId);document.querySelectorAll('#homeBrandSheet .brand-choice').forEach(el=>el.classList.remove('selected'));if(button)button.classList.add('selected')}
-function changeHomeSheetQuantity(change){if(!pendingHomeSelection)return;pendingHomeSelection.quantity=Math.max(1,pendingHomeSelection.quantity+change);const q=document.getElementById('homeSheetQuantity');if(q)q.textContent=pendingHomeSelection.quantity}
-function confirmHomeSelection(){
-  if(!pendingHomeSelection)return;
-  const list=getList();
-  const ids=new Set(variantsForSelection(pendingHomeSelection.name,pendingHomeSelection.unit).map(p=>Number(p.id)));
-  const index=list.findIndex(item=>ids.has(Number(item.productId)));
-  const item={productId:Number(pendingHomeSelection.productId),quantity:Number(pendingHomeSelection.quantity)};
-  if(index>=0)list[index]=item;else list.push(item);
-  saveList(list);localStorage.removeItem('selectedPlan');
-  closeHomeBrandSheet();
-  const search=document.getElementById('search');search.value='';document.getElementById('results').innerHTML='';
-  updateItemCount();showAddedToast(pendingHomeSelection.name,pendingHomeSelection.unit);pendingHomeSelection=null;
-}
+
 function showAddedToast(name,unit){let toast=document.getElementById('phase1Toast');if(!toast){toast=document.createElement('div');toast.id='phase1Toast';toast.className='phase1-toast';document.body.appendChild(toast)}toast.innerHTML=`<span>✓</span><div><strong>Added to your list</strong><small>${name}${unit?' · '+unit:''}</small></div>`;toast.classList.add('show');clearTimeout(window.__phase1ToastTimer);window.__phase1ToastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}
 
 function startHomeQuantity(name){const first=matchingSelections(name)[0];if(first)selectHomeSearchResult(encodeURIComponent(first.name),encodeURIComponent(first.unit))}

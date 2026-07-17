@@ -232,13 +232,23 @@ function renderPlans() {
   );
 
   if (alternativePlan) {
-    const difference = Math.abs(tripTotal(alternativePlan) - tripTotal(recommendedPlan));
-    const isOneStop = alternativePlan.storeIds.length === 1;
-    const badge = isOneStop ? "One stop" : "Alternative";
-    const text = isOneStop
-      ? `Complete list in one store${difference ? ` · ${money(difference)} difference` : ""}.`
-      : `Complete list across two stores${difference ? ` · ${money(difference)} difference` : ""}.`;
-    html += planCard(alternativePlan, 2, badge, { type: "success", text: `✓ ${text}` }, "alternative");
+    const recommendedTotal = tripTotal(recommendedPlan);
+    const alternativeTotal = tripTotal(alternativePlan);
+    const hasCoverageBenefit = Boolean(alternativePlan.isComplete) && !Boolean(recommendedPlan.isComplete);
+    const hasStopBenefit = alternativePlan.storeIds.length < recommendedPlan.storeIds.length;
+    const isCheaper = alternativeTotal < recommendedTotal;
+    const hasMeaningfulBenefit = isCheaper || hasCoverageBenefit || hasStopBenefit;
+
+    // Do not present a more expensive route as an alternative unless it offers a real benefit.
+    if (hasMeaningfulBenefit) {
+      const difference = Math.abs(alternativeTotal - recommendedTotal);
+      const isOneStop = alternativePlan.storeIds.length === 1;
+      const badge = isOneStop ? "One stop" : "Alternative";
+      const text = isOneStop
+        ? `Complete list in one store${difference ? ` · ${money(difference)} difference` : ""}.`
+        : `Complete list across two stores${difference ? ` · ${money(difference)} difference` : ""}.`;
+      html += planCard(alternativePlan, 2, badge, { type: "success", text: `✓ ${text}` }, "alternative");
+    }
   }
 
   host.innerHTML = html;

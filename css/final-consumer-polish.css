@@ -16,26 +16,7 @@
 html,body{background:var(--sulit-bg)!important}
 body .app{background:linear-gradient(180deg,#f7faf7 0%,var(--sulit-bg) 36%,#f7faf7 100%)!important}
 
-/* Headers blend into the page; decorative header icons removed. */
-body .app>header{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
-.sulit-page-header{
-  display:block!important;
-  min-height:0!important;
-  padding:28px 22px 24px!important;
-  background:linear-gradient(180deg,#f7faf7 0%,#f2f7f3 100%)!important;
-  border:0!important;
-  border-radius:0!important;
-  overflow:visible!important;
-}
-.sulit-page-header::after,.sulit-header-icon{display:none!important}
-.sulit-header-copy{max-width:100%!important}
-.sulit-header-label{margin-bottom:8px!important;color:#52715d!important;font-size:10px!important;letter-spacing:.13em!important}
-.sulit-page-header h1{font-size:28px!important;line-height:1.08!important;letter-spacing:-.035em!important}
-.sulit-page-header p{margin-top:7px!important;font-size:14px!important;line-height:1.42!important}
-.sulit-header-status{margin-top:11px!important;font-size:12px!important;line-height:1.35!important}
-.sulit-home-brand{margin-bottom:8px!important}
-.sulit-home-greeting{font-size:24px!important}
-body .app>main{border-top:1px solid var(--sulit-line)!important}
+/* Header styling is controlled by header-system.css. */
 
 /* Approved search results: preserve structure, fix name/size spacing only. */
 #results{margin-top:8px!important}
@@ -318,3 +299,7 @@ html body .phase3-header p{
 html body header .brand-header{
   display:flex!important;
 }
+
+
+/* Targeted home cleanup: do not show the tap/change-brand helper on Add Items. */
+html body.home-add-page .tap-brand-hint{display:none!important}

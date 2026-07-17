@@ -83,3 +83,31 @@ body.admin-shell main{width:100%!important;max-width:1720px!important;padding:28
 @media(max-width:900px){body.admin-shell main{padding:20px 16px 38px!important}.admin-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.admin-workspace{display:block!important}.admin-sidebar{position:fixed!important;top:66px!important;bottom:0!important;left:0!important;width:min(84vw,294px)!important;border-radius:0 14px 14px 0!important;transform:translateX(-104%)!important;z-index:100!important}.admin-nav-open .admin-sidebar{transform:translateX(0)!important}.admin-menu-button{display:grid!important}.admin-drawer-backdrop{top:66px!important}}
 @media(max-width:640px){body.admin-shell main{padding:14px 10px 26px!important}.admin-topbar{padding:0 14px!important}.admin-toolbar h1{font-size:24px!important}.admin-stats-grid{gap:8px!important}.admin-stats-grid .stat{padding:13px!important}.admin-stats-grid .value{font-size:23px!important}.admin-form-grid{grid-template-columns:1fr!important}.admin-panel>.card,.admin-section-hero{padding:14px!important}.admin-item-grid{grid-template-columns:1fr!important}.admin-section-title input{max-width:none!important;width:100%!important}}
 .verification-cell{display:flex;flex-direction:column;gap:2px;white-space:nowrap}.verification-cell strong{font-size:12px;color:var(--sa-text)}.verification-cell span{font-size:11px;color:var(--sa-muted)}
+
+
+/* Store Price Updater — admin only */
+.store-price-updater-card{padding:24px}
+.store-price-updater-heading{align-items:flex-start;gap:16px}
+.store-updater-toolbar{display:grid;grid-template-columns:minmax(170px,.8fr) minmax(220px,1.4fr) minmax(170px,.8fr) auto;gap:14px;align-items:end;margin-top:20px}
+.store-updater-toolbar label{margin:0 0 7px}
+.store-updater-toggle{display:flex!important;align-items:center;gap:9px;min-height:44px;margin:0!important;padding:0 4px;white-space:nowrap;font-weight:700;color:#44524a}
+.store-updater-toggle input{width:18px;height:18px;margin:0;accent-color:#2f8f57}
+.store-updater-summary{display:flex;justify-content:space-between;gap:16px;margin:18px 0 10px;padding:14px 16px;background:#f7faf7;border:1px solid #e4ece5;border-radius:14px}
+.store-updater-summary>div{display:flex;flex-direction:column;gap:3px}
+.store-updater-summary span{font-size:12px;color:#758079}
+.store-updater-table-wrap{max-height:620px;overflow:auto;border:1px solid #e5ebe6;border-radius:14px}
+.store-updater-table{margin:0}
+.store-updater-table thead th{position:sticky;top:0;z-index:2;background:#f8faf8}
+.store-updater-table td{vertical-align:middle}
+.store-price-date{display:inline-flex;padding:6px 9px;border-radius:999px;background:#f0f5f1;color:#587062;font-size:12px;font-weight:700;white-space:nowrap}
+.store-price-date.outdated{background:#fff4e6;color:#9a5c12}
+.store-price-input-wrap{display:flex;align-items:center;min-width:135px;border:1px solid #dbe4dc;border-radius:10px;background:#fff;overflow:hidden}
+.store-price-input-wrap:focus-within{border-color:#2f8f57;box-shadow:0 0 0 3px rgba(47,143,87,.12)}
+.store-price-input-wrap span{padding-left:12px;color:#66736b;font-weight:800}
+.store-price-input-wrap input{border:0!important;box-shadow:none!important;background:transparent!important;padding-left:5px!important;min-width:0}
+.store-updater-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px}
+.store-updater-actions{margin:0;justify-content:flex-end;flex-wrap:wrap}
+.store-updater-actions button{width:auto;min-width:130px}
+.store-updater-actions button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){.store-updater-toolbar{grid-template-columns:1fr 1fr}.store-updater-toggle{min-height:auto}.store-updater-footer{align-items:stretch;flex-direction:column}.store-updater-actions{justify-content:stretch}.store-updater-actions button{flex:1}}
+@media(max-width:620px){.store-price-updater-card{padding:16px}.store-updater-toolbar{grid-template-columns:1fr}.store-updater-summary{flex-direction:column}.store-updater-actions{flex-direction:column}.store-updater-actions button{width:100%}.store-updater-table-wrap{max-height:none}.store-updater-table{min-width:720px}}

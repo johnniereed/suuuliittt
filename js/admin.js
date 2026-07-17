@@ -194,6 +194,130 @@ function renderProductTable(){
  document.getElementById('productAdminRows').innerHTML=products.map(p=>{const priceCount=getPrices().filter(x=>Number(x.productId)===Number(p.id)).length;return `<tr><td><div class="admin-mini-product"><div class="admin-mini-icon">${productIcon(p)}</div><div><strong>${safeText(p.name)}</strong><div class="muted">ID ${p.id}</div></div></div></td><td>${safeText(p.brand)}</td><td>${safeText(p.category)}</td><td>${safeText(p.unit)}</td><td>${priceCount}</td><td><div class="row-menu"><button class="row-menu-trigger" type="button" aria-label="Open actions for ${safeText(p.name)}" aria-haspopup="menu" aria-expanded="false" onclick="toggleProductMenu(event,${p.id})">⋯</button><div class="row-menu-popover" id="productMenu-${p.id}" role="menu"><button type="button" role="menuitem" onclick="closeAdminMenus();editAdminProduct(${p.id})"><span>✎</span>Edit product</button><button type="button" role="menuitem" onclick="closeAdminMenus();editAdminAliases(${p.id})"><span>⌁</span>Manage aliases</button><button type="button" class="danger-menu-item" role="menuitem" onclick="closeAdminMenus();removeAdminProduct(${p.id})"><span>⌫</span>Delete product</button></div></div></td></tr>`}).join('')||'<tr><td colspan="6">No products found.</td></tr>';
  document.getElementById('productTableCount').textContent=`${getProducts().length} products`;
 }
+
+const STORE_PRICE_OUTDATED_DAYS=7;
+let storeUpdaterDrafts={};
+
+function storeUpdaterKey(productId){
+ const storeId=Number(document.getElementById('storeUpdaterStore')?.value||0);
+ return `${storeId}|${Number(productId)}`;
+}
+function storeUpdaterIsOutdated(price){
+ if(!price)return true;
+ const raw=price.checkedDate||price.updatedAt;
+ if(!raw)return true;
+ const checked=new Date(raw);
+ if(Number.isNaN(checked.getTime()))return true;
+ return (Date.now()-checked.getTime())/(1000*60*60*24)>=STORE_PRICE_OUTDATED_DAYS;
+}
+function fillStoreUpdaterControls(){
+ const storeSelect=document.getElementById('storeUpdaterStore');
+ const categorySelect=document.getElementById('storeUpdaterCategory');
+ if(!storeSelect||!categorySelect)return;
+ const selectedStore=storeSelect.value;
+ storeSelect.innerHTML=getStores().map(s=>`<option value="${s.id}">${safeText(s.name)}</option>`).join('');
+ if(selectedStore&&getStores().some(s=>String(s.id)===String(selectedStore)))storeSelect.value=selectedStore;
+ const selectedCategory=categorySelect.value;
+ const categories=[...new Set(getProducts().map(p=>String(p.category||'Other')).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ categorySelect.innerHTML='<option value="">All categories</option>'+categories.map(c=>`<option value="${safeText(c)}">${safeText(c)}</option>`).join('');
+ if(categories.includes(selectedCategory))categorySelect.value=selectedCategory;
+}
+function captureStoreUpdaterDraft(productId,value){
+ const key=storeUpdaterKey(productId);
+ const cleaned=String(value||'').replace(/[^0-9.]/g,'');
+ storeUpdaterDrafts[key]=cleaned;
+ const input=document.querySelector(`[data-store-price-product="${productId}"]`);
+ if(input&&input.value!==cleaned)input.value=cleaned;
+ updateStoreUpdaterProgress();
+}
+function updateStoreUpdaterProgress(){
+ const storeId=Number(document.getElementById('storeUpdaterStore')?.value||0);
+ const count=Object.entries(storeUpdaterDrafts).filter(([key,value])=>key.startsWith(`${storeId}|`)&&Number(value)>0).length;
+ const progress=document.getElementById('storeUpdaterProgress');
+ if(progress)progress.textContent=`${count} changed`;
+ const button=document.getElementById('saveStorePriceUpdatesButton');
+ if(button)button.disabled=count===0;
+}
+function renderStorePriceUpdater(){
+ fillStoreUpdaterControls();
+ const storeSelect=document.getElementById('storeUpdaterStore');
+ const rowsEl=document.getElementById('storeUpdaterRows');
+ if(!storeSelect||!rowsEl)return;
+ const storeId=Number(storeSelect.value||getStores()[0]?.id||0);
+ if(!storeSelect.value&&storeId)storeSelect.value=String(storeId);
+ const search=String(document.getElementById('storeUpdaterSearch')?.value||'').trim().toLowerCase();
+ const category=document.getElementById('storeUpdaterCategory')?.value||'';
+ const outdatedOnly=Boolean(document.getElementById('storeUpdaterOutdated')?.checked);
+ const prices=getPrices().filter(p=>Number(p.storeId)===storeId);
+ const priceMap=new Map(prices.map(p=>[Number(p.productId),p]));
+ const products=getProducts().slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).filter(p=>{
+  const haystack=`${p.name||''} ${p.brand||''} ${p.unit||''} ${p.category||''}`.toLowerCase();
+  if(search&&!haystack.includes(search))return false;
+  if(category&&String(p.category||'Other')!==category)return false;
+  if(outdatedOnly&&!storeUpdaterIsOutdated(priceMap.get(Number(p.id))))return false;
+  return true;
+ });
+ const store=storeById(storeId);
+ const storeName=document.getElementById('storeUpdaterStoreName');
+ if(storeName)storeName.textContent=store?.name||'Store';
+ const dates=prices.map(p=>p.checkedDate||String(p.updatedAt||'').slice(0,10)).filter(Boolean).sort().reverse();
+ const last=document.getElementById('storeUpdaterLastChecked');
+ if(last)last.textContent=dates[0]?`Latest check: ${dates[0]}`:'No prices checked yet';
+ const visible=document.getElementById('storeUpdaterVisibleCount');
+ if(visible)visible.textContent=String(products.length);
+ rowsEl.innerHTML=products.map(p=>{
+  const current=priceMap.get(Number(p.id));
+  const key=`${storeId}|${Number(p.id)}`;
+  const draft=storeUpdaterDrafts[key]||'';
+  const stale=storeUpdaterIsOutdated(current);
+  const date=current?.checkedDate||String(current?.updatedAt||'').slice(0,10)||'Never';
+  return `<tr><td><div class="admin-mini-product"><div class="admin-mini-icon">${productIcon(p)}</div><div><strong>${safeText(p.name)}</strong><div class="muted">${safeText(p.brand||'')} · ${safeText(p.unit||'')}</div></div></div></td><td><strong>${current?money(current.price):'—'}</strong></td><td><span class="store-price-date ${stale?'outdated':''}">${safeText(date)}${stale?' · Outdated':''}</span></td><td><div class="store-price-input-wrap"><span>$</span><input inputmode="decimal" type="number" min="0.01" step="0.01" placeholder="${current?Number(current.price).toFixed(2):'0.00'}" value="${safeText(draft)}" data-store-price-product="${p.id}" oninput="captureStoreUpdaterDraft(${p.id},this.value)"></div></td></tr>`;
+ }).join('')||'<tr><td colspan="4">No products match these filters.</td></tr>';
+ updateStoreUpdaterProgress();
+}
+function clearStorePriceUpdaterInputs(){
+ const storeId=Number(document.getElementById('storeUpdaterStore')?.value||0);
+ Object.keys(storeUpdaterDrafts).forEach(key=>{if(key.startsWith(`${storeId}|`))delete storeUpdaterDrafts[key]});
+ renderStorePriceUpdater();
+}
+function goToNextPriceUpdaterStore(){
+ const select=document.getElementById('storeUpdaterStore');
+ if(!select||!select.options.length)return;
+ select.selectedIndex=(select.selectedIndex+1)%select.options.length;
+ renderStorePriceUpdater();
+}
+async function saveStorePriceUpdates(){
+ const storeId=Number(document.getElementById('storeUpdaterStore')?.value||0);
+ const entries=Object.entries(storeUpdaterDrafts).filter(([key,value])=>key.startsWith(`${storeId}|`)&&Number(value)>0);
+ if(!storeId||!entries.length)return showMessage('adminMessage','Enter at least one new price.','error');
+ const button=document.getElementById('saveStorePriceUpdatesButton');
+ if(button){button.disabled=true;button.textContent='Saving…'}
+ const today=new Date().toISOString().slice(0,10);
+ const now=new Date().toISOString();
+ try{
+  for(const [key,value] of entries){
+   const productId=Number(key.split('|')[1]);
+   const row={productId,storeId,price:Number(Number(value).toFixed(2)),checkedDate:today,source:'Manual batch admin entry',updatedAt:now,manual:true};
+   if(CloudSync.configured())await CloudSync.upsertPrice(row);
+   restorePriceEntry(productId,storeId);
+   const prices=getPrices();
+   const existing=prices.find(p=>Number(p.productId)===productId&&Number(p.storeId)===storeId);
+   if(existing)Object.assign(existing,row);else prices.push(row);
+   savePrices(prices);
+   delete storeUpdaterDrafts[key];
+  }
+  showMessage('adminMessage',`${entries.length} ${entries.length===1?'price':'prices'} updated for ${storeById(storeId)?.name||'this store'}.`);
+  renderAdminDashboard();
+  renderStorePriceUpdater();
+ }catch(error){
+  console.error(error);
+  showMessage('adminMessage',error.message||'Some prices could not be saved. Unsaved entries remain on this page.','error');
+  renderStorePriceUpdater();
+ }finally{
+  if(button){button.textContent='Save all updates';updateStoreUpdaterProgress()}
+ }
+}
+
 function renderPriceTable(){
  const search=document.getElementById('priceAdminSearch').value.toLowerCase();const rows=getPrices().filter(p=>`${productById(p.productId)?.name||''} ${storeById(p.storeId)?.name||''}`.toLowerCase().includes(search)).sort((a,b)=>(productById(a.productId)?.name||'').localeCompare(productById(b.productId)?.name||''));
  document.getElementById('priceAdminRows').innerHTML=rows.map(p=>`<tr><td><div class="admin-mini-product"><div class="admin-mini-icon">${productIcon(productById(p.productId))}</div><strong>${safeText(productById(p.productId)?.name||'Unknown')}</strong></div></td><td>${storeLogo(storeById(p.storeId))} ${safeText(storeById(p.storeId)?.name||'Store')}</td><td><strong>${money(p.price)}</strong></td><td>${safeText(p.source|| (p.crowdVerified?'3-user crowd verified':'Default seed'))}</td><td>${safeText(p.checkedDate||p.updatedAt?.slice(0,10)||'—')}</td><td><button class="tiny-button edit-btn" onclick="editAdminPrice(${p.productId},${p.storeId})">Edit</button><button class="tiny-button delete-btn" onclick="removeAdminPrice(${p.productId},${p.storeId})">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No prices found.</td></tr>';
@@ -278,9 +402,10 @@ function renderReceiptAdmin(){
  document.getElementById('consensusList').innerHTML=[...grouped.values()].sort((a,b)=>new Set(b.map(x=>x.userId)).size-new Set(a.map(x=>x.userId)).size).slice(0,30).map(g=>{const sample=g[0],users=new Set(g.map(x=>x.userId)).size,receiptCount=new Set(g.map(x=>x.receiptId)).size;return `<div class="item"><div class="row space"><strong>${safeText(productById(sample.productId)?.name||'Product')} · ${safeText(storeById(sample.storeId)?.name||'Store')}</strong><strong>${money(sample.price)}</strong></div><div class="muted">Verification progress: ${Math.min(users,3)} of 3 users · ${Math.min(receiptCount,3)} of 3 receipts ${users>=3&&receiptCount>=3?'· Verified and live':'· Waiting for confirmations'}</div></div>`}).join('')||'<div class="empty">No crowd price reports yet.</div>';
 }
 function renderAdminDashboard(){
- fillAdminSelects();document.getElementById('productCount').textContent=getProducts().length;document.getElementById('allPriceCount').textContent=getPrices().length;document.getElementById('aliasGroupCount').textContent=getProductAliases().length;document.getElementById('verifiedPriceCount').textContent=getPrices().filter(p=>p.crowdVerified).length;renderProductTable();renderPriceTable();renderAliasTable();renderReceiptAdmin();
+ fillAdminSelects();fillStoreUpdaterControls();document.getElementById('productCount').textContent=getProducts().length;document.getElementById('allPriceCount').textContent=getPrices().length;document.getElementById('aliasGroupCount').textContent=getProductAliases().length;document.getElementById('verifiedPriceCount').textContent=getPrices().filter(p=>p.crowdVerified).length;renderProductTable();renderPriceTable();renderAliasTable();renderReceiptAdmin();
 }
 ['productAdminSearch','priceAdminSearch','aliasAdminSearch'].forEach(id=>document.getElementById(id).addEventListener('input',renderAdminDashboard));
+const storeUpdaterSearch=document.getElementById('storeUpdaterSearch');if(storeUpdaterSearch)storeUpdaterSearch.addEventListener('input',renderStorePriceUpdater);
 document.getElementById('adminProductIcon').addEventListener('input',renderIconPicker);
 applySevenUserPriceConsensus();resetPriceForm();renderIconPicker();renderAdminDashboard();
 

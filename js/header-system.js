@@ -20,9 +20,12 @@
     wallet:'<path d="M4 7h15a2 2 0 0 1 2 2v9H6a2 2 0 0 1-2-2z"/><path d="M4 8V6a2 2 0 0 1 2-2h11v3M15 12h6v4h-6a2 2 0 0 1 0-4z"/>',
     user:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21c.7-4.4 3.2-6.7 7.5-6.7s6.8 2.3 7.5 6.7"/>'
   };
-  function file(){return location.pathname.split('/').pop()||'index.html'}
+  function file(){const raw=(location.pathname.split('/').pop()||'index.html').toLowerCase();return raw.includes('.')?raw:`${raw}.html`}
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'}
-  function name(){return (localStorage.getItem('groceryProfileName')||localStorage.getItem('budgetProfileName')||localStorage.getItem('profileName')||'there').trim()}
+  function name(){
+    const value=(localStorage.getItem('groceryProfileName')||localStorage.getItem('budgetProfileName')||localStorage.getItem('profileName')||'').trim();
+    return /^(grocerysaver\s*user|grocerysaver|user|there)$/i.test(value)?'':value;
+  }
   function homeStatus(){
     const budget=Number(localStorage.getItem('monthlyGroceryBudget')||0);
     let spent=0;
@@ -34,9 +37,10 @@
   function render(){
     const cfg=PAGES[file()];if(!cfg)return;
     const old=document.querySelector('.app > header');if(!old)return;
-    const title=cfg.home?`${greeting()}, ${name()} 👋`:cfg.title;
+    const savedName=name();
+    const title=cfg.home?(savedName?`${greeting()}, ${savedName.split(/\s+/)[0]} 👋`:''):cfg.title;
     const status=cfg.home?homeStatus():cfg.status;
-    old.innerHTML=`<div class="sulit-page-header ${cfg.home?'sulit-home-header':''}"><div class="sulit-header-copy">${cfg.home?'<div class="sulit-home-brand">Sulit 🍁</div>':`<small class="sulit-header-label">${cfg.label}</small>`}<h1 class="${cfg.home?'sulit-home-greeting':''}">${title}</h1><p>${cfg.subtitle}</p><div class="sulit-header-status">${status}</div></div></div>`;
+    old.innerHTML=`<div class="sulit-page-header ${cfg.home?'sulit-home-header':''}"><div class="sulit-header-copy">${cfg.home?'<div class="sulit-home-brand">Sulit 🍁</div>':`<small class="sulit-header-label">${cfg.label}</small>`}<h1 class="${cfg.home?'sulit-home-greeting':''} ${!title?'sulit-empty-title':''}">${title}</h1><p>${cfg.subtitle}</p><div class="sulit-header-status">${status}</div></div><div class="sulit-header-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${icons[cfg.icon]}</svg></div></div>`;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
 })();

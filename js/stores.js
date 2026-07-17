@@ -30,7 +30,7 @@ function renderStores(){
   const highestComplete=complete.sort((a,b)=>b.basket.total-a.basket.total)[0];
   const potentialSavings=highestComplete?Math.max(0,highestComplete.basket.total-recommended.basket.total):0;
   const missing=Math.max(0,recommended.basket.totalItems-recommended.basket.foundItems);
-  const hero=`<section class="consumer-recommendation-hero" role="button" tabindex="0" onclick="showStore(${recommended.store.id})" onkeydown="if(event.key==='Enter'||event.key===' '){showStore(${recommended.store.id})}">
+  const hero=`<section class="consumer-recommendation-hero" role="button" tabindex="0" onclick="showStoreAndScroll(${recommended.store.id})" onkeydown="if(event.key==='Enter'||event.key===' '){showStoreAndScroll(${recommended.store.id})}">
     <small>Recommended today</small>
     <h2>${recommended.store.name}</h2>
     <p>${recommended.basket.isComplete?'Your complete grocery list is covered in one stop.':`${missing} product${missing===1?' is':'s are'} not priced here yet. We’ll still recommend the strongest available plan.`}</p>
@@ -38,13 +38,13 @@ function renderStores(){
       <div><span>Estimated basket</span><strong>${money(recommended.basket.total)}</strong></div>
       <div><span>${potentialSavings>0?'Potential savings':'List coverage'}</span><strong>${potentialSavings>0?money(potentialSavings):`${recommended.basket.foundItems}/${recommended.basket.totalItems}`}</strong></div>
     </div>
-    <button class="consumer-hero-button">See why →</button>
+    <button class="consumer-hero-button" type="button" onclick="event.stopPropagation();showStoreAndScroll(${recommended.store.id})">See why →</button>
   </section>`;
   const alternatives=sorted.filter(result=>result!==recommended).map((result,index)=>{
     const difference=result.basket.foundItems>0?Math.max(0,result.basket.total-recommended.basket.total):0;
     const missingCount=Math.max(0,result.basket.totalItems-result.basket.foundItems);
     const coverage=result.basket.isComplete?'Complete list':result.basket.foundItems===0?'Waiting for price data':`${missingCount} product${missingCount===1?'':'s'} unavailable`;
-    return `<article class="store-card" onclick="showStore(${result.store.id})" style="--store-color:${result.store.color||'#2ca43b'}">
+    return `<article class="store-card" onclick="showStoreAndScroll(${result.store.id})" style="--store-color:${result.store.color||'#2ca43b'}">
       <div class="store-card-top">
         <div class="store-rank">${index+2}</div>
         <div class="store-logo">${storeLogo(result.store)}</div>
@@ -79,12 +79,25 @@ function storeBasketTax(basket){
 function categoryName(product){
   return String(product?.category||'Other').trim()||'Other';
 }
+function showStoreAndScroll(id){
+  showStore(id);
+  requestAnimationFrame(()=>{
+    const details=document.getElementById('storeDetails');
+    if(details)details.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
 function showStore(id){
   setSelectedStore(id);
   const store=storeById(id),basket=calculateStoreBasket(id);
   const allResults=getStores().map(item=>({store:item,basket:calculateStoreBasket(item.id)})).filter(row=>row.basket.foundItems>0);
-  const cheapest=allResults.sort((a,b)=>a.basket.total-b.basket.total)[0];
-  const isCheapest=Number(cheapest?.store?.id)===Number(id);
+  const rankedResults=[...allResults].sort((a,b)=>{
+    if(a.basket.isComplete&&!b.basket.isComplete)return-1;
+    if(!a.basket.isComplete&&b.basket.isComplete)return 1;
+    return a.basket.total-b.basket.total;
+  });
+  const recommendedResult=rankedResults.find(result=>result.basket.isComplete)||rankedResults[0]||null;
+  const isRecommended=Number(recommendedResult?.store?.id)===Number(id);
+  const priceDifference=recommendedResult?Math.max(0,Number(basket.total||0)-Number(recommendedResult.basket.total||0)):0;
   const estimatedTax=storeBasketTax(basket);
   const estimatedCheckout=Number(basket.total||0)+estimatedTax;
   const freshness=storeFreshnessLabel(id,basket);
@@ -101,18 +114,22 @@ function showStore(id){
         ${rows.map(row=>`<div class="basket-line"><div class="basket-line-main"><div class="list-product-logo">${productIcon(row.product)}</div><div><strong>${row.productName}</strong><small>Quantity ${row.quantity}</small></div></div><div class="basket-line-price">${row.hasPrice?`<strong>${money(row.itemTotal)}</strong><small>${money(row.unitPrice)} each</small>`:'<strong class="unavailable-text">Unavailable</strong>'}</div></div>`).join('')}
       </div>
     </details>`).join('');
-  const reasons=[
-    isCheapest?'Lowest known basket total':'Competitive basket total',
+  const reasons=isRecommended?[
+    'Lowest known basket total',
+    basket.isComplete?'Complete shopping list':`${basket.foundItems} of ${basket.totalItems} items priced`,
+    freshness
+  ]:[
+    priceDifference>0?`${money(priceDifference)} more than the recommended store`:'Same known basket total as the recommended store',
     basket.isComplete?'Complete shopping list':`${basket.foundItems} of ${basket.totalItems} items priced`,
     freshness
   ];
   document.getElementById("storeDetails").innerHTML=`
     <section class="store-summary-screen">
       <div class="store-summary-hero">
-        <div class="store-summary-identity"><div class="store-logo">${storeLogo(store)}</div><div><span class="store-summary-label">Why this recommendation</span><h2>${store.name}</h2><p>${basket.isComplete?'Everything on your list is covered.':'Review the items currently available here.'}</p></div></div>
+        <div class="store-summary-identity"><div class="store-logo">${storeLogo(store)}</div><div><span class="store-summary-label">${isRecommended?'Why this recommendation':'Store details'}</span><h2>${store.name}</h2><p>${isRecommended?(basket.isComplete?'Everything on your list is covered.':'Review the items currently available here.'):(priceDifference>0?`${money(priceDifference)} more than the recommended store.`:'Compare this option with the recommended store.')}</p></div></div>
         <div class="store-checkout"><small>Estimated checkout</small><strong>${basket.foundItems?money(estimatedCheckout):'Not available yet'}</strong><span>${basket.foundItems}/${basket.totalItems} items</span></div>
       </div>
-      <div class="store-reason-panel"><h3>Why it stands out</h3>${reasons.map(reason=>`<div><span class="reason-check">✓</span><span>${reason}</span></div>`).join('')}</div>
+      <div class="store-reason-panel"><h3>${isRecommended?'Why it stands out':'How this option compares'}</h3>${reasons.map(reason=>`<div><span class="reason-check">✓</span><span>${reason}</span></div>`).join('')}</div>
       <div class="store-cost-summary"><div><span>Products</span><strong>${money(basket.total)}</strong></div><div><span>Estimated tax</span><strong>${money(estimatedTax)}</strong></div><div class="store-cost-total"><span>Estimated checkout</span><strong>${money(estimatedCheckout)}</strong></div></div>
       <div class="store-basket-heading"><div><span class="store-summary-label">Your basket</span><h3>Items at ${store.name}</h3></div><span>${basket.foundItems}/${basket.totalItems}</span></div>
       <div class="store-basket-groups">${categorySections}</div>

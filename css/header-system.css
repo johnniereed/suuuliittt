@@ -8,7 +8,7 @@
 .sulit-page-header{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 58px;
+  grid-template-columns:minmax(0,1fr);
   gap:16px;
   align-items:center;
   padding:24px 22px 22px;
@@ -27,14 +27,15 @@
 .sulit-page-header p{margin:8px 0 0;color:#617067;font-size:14px;line-height:1.45;max-width:28rem}
 .sulit-header-status{display:flex;align-items:center;gap:7px;margin-top:12px;color:#2d774a;font-size:12.5px;font-weight:700}
 .sulit-header-status::before{content:"✓";display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#e2f3e7;color:#267344;font-size:11px}
-.sulit-header-icon{position:relative;z-index:1;width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:#fff;border:1px solid #deeadf;box-shadow:0 8px 22px rgba(31,70,45,.08)}
+.sulit-header-icon{display:none!important}
 .sulit-header-icon svg{width:28px;height:28px;fill:none;stroke:var(--header-icon);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.sulit-home-header{grid-template-columns:1fr 52px;min-height:168px}
+.sulit-home-header{grid-template-columns:1fr;min-height:168px}
 .sulit-home-brand{font-size:18px;font-weight:850;color:#237744;letter-spacing:-.02em;margin-bottom:10px}
 .sulit-home-greeting{font-size:25px!important}
+.sulit-empty-title{display:none!important}
 .sulit-home-header p{font-size:15px}
- .phase1-header,body header:has(.brand-header),body .phase3-header{padding:0!important;background:transparent!important;border:0!important;min-height:auto!important}
-
+body .phase1-header,body header:has(.brand-header),body .phase3-header{padding:0!important;background:transparent!important;border:0!important;min-height:auto!important}
+body .phase1-header .phase1-titlebar,body header .brand-header,body .phase3-header>h1,body .phase3-header>p{display:none!important}
 /* Account: remove empty/oversized profile hero */
 .account-page .account-profile-card{display:none!important}
 .account-page .phase3-shell{padding-top:20px!important}
@@ -49,8 +50,32 @@
 .consumer-recommendation-hero{border:1px solid #dceadd!important;box-shadow:0 14px 32px rgba(35,88,52,.10)!important}
 .store-ranking-label{margin-top:26px!important}
 @media(max-width:390px){
- .sulit-page-header{grid-template-columns:minmax(0,1fr) 50px;padding:21px 18px 19px;min-height:132px}
+ .sulit-page-header{grid-template-columns:minmax(0,1fr);padding:21px 18px 19px;min-height:132px}
  .sulit-home-header{min-height:158px}
  .sulit-page-header h1{font-size:25px}.sulit-header-icon{width:48px;height:48px;border-radius:16px}.sulit-header-icon svg{width:25px;height:25px}
  .sulit-home-greeting{font-size:23px!important}
+}
+
+/* Targeted header blend fix: keep the existing artwork and copy, remove only the inset/pasted-card appearance. */
+html body:not(.admin-shell) .app > header,
+html body:not(.admin-shell) .app > .phase1-header,
+html body:not(.admin-shell) .app > .phase3-header{
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+html body:not(.admin-shell) .app > header::after,
+html body:not(.admin-shell) .app > .phase1-header::after,
+html body:not(.admin-shell) .app > .phase3-header::after{
+  display:none!important;
+}
+html body:not(.admin-shell) .sulit-page-header{
+  width:100%!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  border-radius:0!important;
+  box-shadow:none!important;
 }
