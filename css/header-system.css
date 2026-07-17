@@ -1,0 +1,56 @@
+
+/* Sulit v1.0 Header System — targeted consumer polish */
+:root{
+  --header-bg:#f3f8f3;
+  --header-border:#e4ece5;
+  --header-icon:#2f8f57;
+}
+.sulit-page-header{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 58px;
+  gap:16px;
+  align-items:center;
+  padding:24px 22px 22px;
+  background:linear-gradient(145deg,#f8fbf8 0%,var(--header-bg) 100%);
+  border-bottom:1px solid var(--header-border);
+  min-height:142px;
+  overflow:hidden;
+}
+.sulit-page-header::after{
+  content:"";position:absolute;right:-38px;top:-46px;width:126px;height:126px;
+  border-radius:999px;background:rgba(47,143,87,.07);pointer-events:none;
+}
+.sulit-header-copy{position:relative;z-index:1;min-width:0}
+.sulit-header-label{display:block;margin:0 0 7px;color:#5e7e68;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.sulit-page-header h1{margin:0;color:#17231b;font-size:28px;line-height:1.08;letter-spacing:-.035em}
+.sulit-page-header p{margin:8px 0 0;color:#617067;font-size:14px;line-height:1.45;max-width:28rem}
+.sulit-header-status{display:flex;align-items:center;gap:7px;margin-top:12px;color:#2d774a;font-size:12.5px;font-weight:700}
+.sulit-header-status::before{content:"✓";display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#e2f3e7;color:#267344;font-size:11px}
+.sulit-header-icon{position:relative;z-index:1;width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:#fff;border:1px solid #deeadf;box-shadow:0 8px 22px rgba(31,70,45,.08)}
+.sulit-header-icon svg{width:28px;height:28px;fill:none;stroke:var(--header-icon);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sulit-home-header{grid-template-columns:1fr 52px;min-height:168px}
+.sulit-home-brand{font-size:18px;font-weight:850;color:#237744;letter-spacing:-.02em;margin-bottom:10px}
+.sulit-home-greeting{font-size:25px!important}
+.sulit-home-header p{font-size:15px}
+body .phase1-header,body header:has(.brand-header),body .phase3-header{padding:0!important;background:transparent!important;border:0!important;min-height:auto!important}
+body .phase1-header .phase1-titlebar,body header .brand-header,body .phase3-header>h1,body .phase3-header>p{display:none!important}
+/* Account: remove empty/oversized profile hero */
+.account-page .account-profile-card{display:none!important}
+.account-page .phase3-shell{padding-top:20px!important}
+.account-page .account-section-label:first-of-type{margin-top:0!important}
+/* Preserve locked search result cards */
+#results .result-card,#results .search-result-card{transform:none!important}
+/* Home category action repair */
+.section-label-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:nowrap!important}
+.section-label-row h2{margin:0!important;flex:0 0 auto}
+#viewAllCategories{width:auto!important;min-width:0!important;max-width:190px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;padding:9px 13px!important;margin:0!important;background:#fff!important;color:#287a48!important;border:1px solid #dce9df!important;box-shadow:none!important;font-size:12px!important}
+/* Store copy polish without changing logic */
+.consumer-recommendation-hero{border:1px solid #dceadd!important;box-shadow:0 14px 32px rgba(35,88,52,.10)!important}
+.store-ranking-label{margin-top:26px!important}
+@media(max-width:390px){
+ .sulit-page-header{grid-template-columns:minmax(0,1fr) 50px;padding:21px 18px 19px;min-height:132px}
+ .sulit-home-header{min-height:158px}
+ .sulit-page-header h1{font-size:25px}.sulit-header-icon{width:48px;height:48px;border-radius:16px}.sulit-header-icon svg{width:25px;height:25px}
+ .sulit-home-greeting{font-size:23px!important}
+}

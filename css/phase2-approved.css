@@ -1,0 +1,77 @@
+/* Phase 2 — Shopping Plan, store details, route and return flow only */
+:root{--p2-green:#2f8f57;--p2-green-dark:#236f44;--p2-soft:#eaf5ee;--p2-bg:#f6f8f6;--p2-line:#e4e9e5;--p2-text:#17211b;--p2-muted:#68736c;--p2-warning:#fff7e3;--p2-warning-text:#7d5a13}
+body{background:var(--p2-bg)}
+body:has(#plans) header,body:has(#stores) header,body:has(#tripDetails) header{background:transparent;border:0;padding-bottom:4px}
+body:has(#plans) main,body:has(#stores) main,body:has(#tripDetails) main{padding-top:8px}
+body:has(#plans) .brand-header,body:has(#stores) .brand-header,body:has(#tripDetails) .brand-header{align-items:flex-start}
+body:has(#plans) .brand-header h1,body:has(#stores) .brand-header h1,body:has(#tripDetails) .brand-header h1{font-size:30px;letter-spacing:-.035em;color:var(--p2-text)}
+body:has(#plans) .brand-header p,body:has(#stores) .brand-header p,body:has(#tripDetails) .brand-header p{color:var(--p2-muted);font-size:15px;margin-top:5px}
+
+/* Store overview */
+#stores{display:grid;gap:12px}
+#stores .store-card{background:#fff;border:1px solid var(--p2-line);border-radius:16px;box-shadow:0 5px 18px rgba(20,45,30,.055);padding:17px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+#stores .store-card:active{transform:scale(.985)}
+#stores .store-card-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px}
+#stores .store-logo{width:42px;height:42px;border-radius:12px;background:var(--p2-soft);color:var(--p2-green);display:grid;place-items:center;overflow:hidden}
+#stores .store-copy{min-width:0}
+#stores .store-copy strong{display:block;font-size:17px;color:var(--p2-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stores .store-copy .muted{font-size:13px;margin-top:3px;line-height:1.35}
+#stores .store-price{text-align:right;min-width:84px}
+#stores .store-price .price{font-weight:800;font-size:20px;color:var(--p2-text)}
+#stores .cheapest-badge{display:inline-flex;margin-top:6px;border:0;border-radius:7px;background:var(--p2-soft);color:var(--p2-green-dark);font-size:11px;padding:4px 7px;font-weight:800}
+#storeDetails{margin-top:14px}
+#storeDetails .featured{border:1px solid var(--p2-line);border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(20,45,30,.07);padding:18px}
+#storeDetails .featured .color-strip{display:none}
+#storeDetails .featured h2{font-size:21px;color:var(--p2-text)}
+#storeDetails .featured>.row:first-child{gap:12px}
+#storeDetails .item{border:0;border-top:1px solid var(--p2-line);border-radius:0;background:transparent;margin:0;padding:14px 0}
+#storeDetails .item:first-of-type{margin-top:12px}
+#storeDetails .button{border-radius:12px}
+
+/* Shopping plan */
+#planMessage{margin-bottom:14px}
+.sulit-recommendation{background:var(--p2-soft);border:1px solid #d9ebdf;border-radius:18px;padding:19px;box-shadow:none}
+.sulit-recommendation small{display:block;text-transform:uppercase;letter-spacing:.09em;font-size:11px;font-weight:800;color:var(--p2-green-dark)}
+.sulit-recommendation h2{margin:7px 0 6px;font-size:24px;line-height:1.12;color:var(--p2-text);letter-spacing:-.025em}
+.sulit-recommendation p{margin:0;color:#415047;line-height:1.5;font-size:14px}
+#plans{display:grid;gap:13px}
+#plans .plan-card{background:#fff;border:1px solid var(--p2-line);border-radius:17px;padding:18px;box-shadow:0 6px 22px rgba(20,45,30,.055)}
+#plans .plan-card.selected{border-color:#9bc9aa;box-shadow:0 0 0 2px rgba(47,143,87,.08),0 8px 24px rgba(20,45,30,.065)}
+#plans .plan-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#plans .route-kicker{font-size:12px;color:var(--p2-muted);font-weight:700}
+#plans .route-name{font-size:19px;font-weight:800;color:var(--p2-text);margin-top:4px;line-height:1.25}
+#plans .badge{border:0;border-radius:7px;padding:5px 8px;background:var(--p2-soft);color:var(--p2-green-dark);font-size:11px;white-space:nowrap}
+#plans .route-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:17px 0 0;border-top:1px solid var(--p2-line);border-bottom:1px solid var(--p2-line)}
+#plans .route-metrics>div{padding:13px 8px;text-align:center;border-right:1px solid var(--p2-line)}
+#plans .route-metrics>div:last-child{border-right:0}
+#plans .route-metrics small{display:block;color:var(--p2-muted);font-size:11px;margin-bottom:4px}
+#plans .route-metrics b{font-size:15px;color:var(--p2-text)}
+#plans .plan-note{font-size:13px;line-height:1.45;margin-top:13px;color:#405048}
+#plans .plan-note.warning{background:var(--p2-warning);color:var(--p2-warning-text);padding:11px 12px;border-radius:10px}
+#plans .plan-select{width:100%;margin-top:14px;border-radius:12px;background:var(--p2-green);color:#fff}
+#plans .plan-card:not(.selected) .plan-select{background:#fff;color:var(--p2-green-dark);border:1px solid #b9d7c3}
+
+/* Trip details */
+#tripDetails .trip-summary-card{border:1px solid var(--p2-line);border-radius:18px;background:#fff;box-shadow:0 8px 28px rgba(20,45,30,.065);padding:20px}
+#tripDetails .trip-summary-head{margin-bottom:3px}
+#tripDetails .trip-route-label{display:inline-block;background:var(--p2-soft);color:var(--p2-green-dark);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+#tripDetails .trip-summary-head h2{font-size:25px;margin:10px 0 4px;color:var(--p2-text)}
+#tripDetails .trip-stops{margin:17px 0 5px}
+#tripDetails .trip-stop{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--p2-line)}
+#tripDetails .trip-stop:last-child{border-bottom:1px solid var(--p2-line)}
+#tripDetails .trip-stop-number{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--p2-soft);color:var(--p2-green-dark);font-size:12px;font-weight:800}
+#tripDetails .trip-summary-card>.item{border:0;border-bottom:1px solid var(--p2-line);border-radius:0;background:transparent;margin:0;padding:14px 2px}
+#tripDetails .trip-total{padding:17px 2px 5px;font-size:18px;color:var(--p2-text)}
+#tripDetails #startNavigationButton{margin-top:18px;border-radius:12px;min-height:52px}
+
+/* Return popup */
+.shopping-modal{backdrop-filter:blur(8px);background:rgba(18,28,21,.34)}
+.shopping-modal-card{border-radius:22px!important;padding:25px 20px 20px!important;max-width:360px!important;box-shadow:0 22px 70px rgba(0,0,0,.2)!important}
+.return-icon{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:var(--p2-soft);color:var(--p2-green);font-size:25px;font-weight:900}
+.shopping-modal-card h2{text-align:center;font-size:24px;color:var(--p2-text);margin:0 0 6px}
+.shopping-modal-card>p{text-align:center;margin:0 0 20px}
+.shopping-modal-buttons{display:grid;gap:9px}
+.shopping-modal-buttons button{width:100%;border-radius:12px;min-height:48px}
+.shopping-modal-buttons .secondary{order:2;background:#fff!important;color:var(--p2-text)!important;border:1px solid var(--p2-line)!important}
+
+@media(max-width:390px){#stores .store-card{padding:14px}#stores .store-card-top{grid-template-columns:40px minmax(0,1fr) auto;gap:9px}#stores .store-logo{width:38px;height:38px}.sulit-recommendation{padding:16px}#plans .plan-card{padding:15px}#plans .route-metrics>div{padding:12px 4px}#tripDetails .trip-summary-card{padding:17px}}
